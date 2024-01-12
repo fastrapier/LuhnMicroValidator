@@ -63,6 +63,21 @@ func validateCreditCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !r.URL.Query().Has("payload") {
+		message := Message{
+			Status:  false,
+			Message: "Query param payload is not exists",
+			Time:    time.Now(),
+		}
+		jsonResponse, err := json.Marshal(message)
+
+		if err != nil {
+			log.Fatal("Unable to encode JSON")
+		}
+
+		http.Error(w, string(jsonResponse), 405)
+	}
+
 	payload := r.URL.Query().Get("payload")
 
 	requestBase64DecodedJson, decodeRequestBase64Error := base64.StdEncoding.DecodeString(payload)
