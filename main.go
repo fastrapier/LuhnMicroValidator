@@ -119,7 +119,18 @@ func validateCreditCard(w http.ResponseWriter, r *http.Request) {
 	valid, err := luhn.IsValid(requestMessage.CreditCard)
 
 	if err != nil {
-		log.Fatal(err)
+		invalidCharsMessage, marshalErrorMessageError := json.Marshal(Message{
+			Status:  false,
+			Message: err.Error(),
+			Time:    time.Now(),
+		})
+
+		if marshalErrorMessageError != nil {
+			log.Fatal(marshalErrorMessageError)
+		}
+
+		http.Error(w, string(invalidCharsMessage), 400)
+		return
 	}
 
 	responseMessage, responseMessageEncodeError := json.Marshal(Message{
